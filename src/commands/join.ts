@@ -41,6 +41,11 @@ export async function execute(
     // Get guild state
     const state = guildStateManager.get(voiceChannel.guild.id);
 
+    if (state.voiceConnection) {
+        await interaction.reply("Silly, I'm already here!");
+        return;
+    }
+
     // Join voice channel
     const connection = joinVoiceChannel({
         channelId: voiceChannel.id,
