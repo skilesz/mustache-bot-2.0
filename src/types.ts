@@ -4,12 +4,15 @@ import {
     SlashCommandBuilder,
 } from "discord.js";
 
+import { GuildStateManager } from "./state/guild-state-manager.js";
+
 
 
 // Command interface
 export interface Command {
     data: SlashCommandBuilder;
     execute: (
-        Interaction: ChatInputCommandInteraction
+        Interaction: ChatInputCommandInteraction,
+        guildStateManager: GuildStateManager
     ) => Promise<void>;
 }

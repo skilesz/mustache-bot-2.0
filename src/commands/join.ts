@@ -8,6 +8,8 @@ import {
     joinVoiceChannel,
 } from "@discordjs/voice";
 
+import { GuildStateManager } from "../state/guild-state-manager.js";
+
 
 
 // Data
@@ -17,7 +19,8 @@ export const data = new SlashCommandBuilder()
 
 // execute()
 export async function execute(
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
+    guildStateManager: GuildStateManager
 ) : Promise<void> {
     // Get member that sent interaction
     const member = interaction.member;
@@ -35,12 +38,17 @@ export async function execute(
         return;
     }
 
+    // Get guild state
+    const state = guildStateManager.get(voiceChannel.guild.id);
+
     // Join voice channel
-    joinVoiceChannel({
+    const connection = joinVoiceChannel({
         channelId: voiceChannel.id,
         guildId: voiceChannel.guild.id,
         adapterCreator: voiceChannel.guild.voiceAdapterCreator,
     });
+
+    state.voiceConnection = connection;
 
     await interaction.reply(`Mustache Bot joined **${voiceChannel.name}**!`);
 }

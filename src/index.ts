@@ -9,6 +9,8 @@ import {
 
 import { loadCommands } from "./command-loader.js";
 
+import { GuildStateManager } from "./state/guild-state-manager.js";
+
 
 
 // SETUP
@@ -27,6 +29,9 @@ const client = new Client({
 
 // Load and register commands
 const commands = await loadCommands();
+
+// Create state manager
+const guildStateManager = new GuildStateManager();
 
 
 
@@ -54,7 +59,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     // Run command
     try {
-        await command.execute(interaction);
+        await command.execute(interaction, guildStateManager);
     } catch (error) {
         console.error(`Error executing /${interaction.commandName}:`, error);
 
