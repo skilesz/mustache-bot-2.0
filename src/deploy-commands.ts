@@ -1,5 +1,7 @@
 import "dotenv/config";
-import { REST, Routes, SlashCommandBuilder } from "discord.js";
+import { REST, Routes } from "discord.js";
+
+import * as ping from "./commands/ping.js";
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
@@ -12,10 +14,7 @@ if (!token || !clientId || !guildId) {
 }
 
 const commands = [
-    new SlashCommandBuilder()
-        .setName("ping")
-        .setDescription("Checks on Mustache Bot")
-        .toJSON(),
+    ping.data.toJSON(),
 ];
 
 const rest = new REST({ version: "10" }).setToken(token);
