@@ -1,5 +1,10 @@
 import "dotenv/config";
-import { Client, GatewayIntentBits } from "discord.js";
+import { 
+    Client,
+    Events,
+    GatewayIntentBits,
+    Interaction,
+} from "discord.js";
 
 const token = process.env.DISCORD_TOKEN;
 
@@ -13,8 +18,18 @@ const client = new Client({
     ]
 });
 
-client.once("clientReady", (client) => {
-    console.log(`Logged in as ${client.user.tag}`);
+client.once(Events.ClientReady, (client) => {
+    console.log(`Logged in as ${client.user.tag}.`);
+});
+
+client.on(Events.InteractionCreate, async (interaction: Interaction) => {
+    if (!interaction.isChatInputCommand()) {
+        return;
+    }
+
+    if (interaction.commandName === "ping") {
+        await interaction.reply("Don't worry daddy, I am here.");
+    }
 });
 
 client.login(token);

@@ -3,9 +3,11 @@
     "target": "es2022",
     "module": "nodenext",
     "moduleResolution": "nodenext",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "dist",
-  }
+  },
+  "include": ["src/**/*.ts"]
 }
