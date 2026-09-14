@@ -22,9 +22,9 @@ if (!token || !clientId || !guildId) {
 // Load commands
 const commands = await loadCommands();
 
-const commandData = commands.map((command) => {
-    command.data.toJSON();
-});
+const commandData = commands.map((command) =>
+    command.data.toJSON()
+);
 
 
 
