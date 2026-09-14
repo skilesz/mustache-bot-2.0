@@ -4,14 +4,17 @@ import {
     SlashCommandBuilder,
 } from "discord.js";
 
+import { createAudioResource } from "@discordjs/voice";
+import { createReadStream } from "node:fs";
+
 import { GuildStateManager } from "../state/guild-state-manager.js";
 
 
 
 // Data
 export const data = new SlashCommandBuilder()
-    .setName("leave")
-    .setDescription("Tells Mustache Bot to fuck off.")
+    .setName("playtest")
+    .setDescription("Play the local test audio file.");
 
 // execute()
 export async function execute(
@@ -29,15 +32,18 @@ export async function execute(
     // Get state
     const state = guildStateManager.get(guildId);
 
-    if (!state.voiceConnection) {
-        await interaction.reply("I'm not even in voice you fucker.");
+    if (!state.voiceConnection || !state.audioPlayer) {
+        await interaction.reply("I need to be in a voice channel first.");
         return;
     }
 
-    // Remove state
-    state.audioPlayer?.stop();
-    state.voiceConnection.destroy();
-    guildStateManager.delete(guildId);
+    // Create audio stream and resource
+    const audioStream = createReadStream("audio/test.mp3");
 
-    await interaction.reply("Fine. I left. Don't bother asking me to come back.");
+    const resource = createAudioResource(audioStream);
+
+    // Play audio
+    state.audioPlayer.play(resource);
+
+    await interaction.reply("Playing test audio.");
 }

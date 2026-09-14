@@ -24,7 +24,7 @@ if (!token) {
 
 // Create client object
 const client = new Client({
-    intents: [ GatewayIntentBits.Guilds ]
+    intents: [ GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates ]
 });
 
 // Load and register commands
