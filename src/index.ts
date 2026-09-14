@@ -1,44 +1,50 @@
+// IMPORTS
 import "dotenv/config";
 import { 
     Client,
     Collection,
     Events,
     GatewayIntentBits,
-    ChatInputCommandInteraction,
 } from "discord.js";
 
-import * as ping from "./commands/ping.js";
+import { loadCommands } from "./command-loader.js";
 
+
+
+// SETUP
+
+// Fetch token from .env
 const token = process.env.DISCORD_TOKEN;
 
 if (!token) {
     throw new Error("DISCORD_TOKEN is not set.");
 }
 
+// Create client object
 const client = new Client({
     intents: [ GatewayIntentBits.Guilds ]
 });
 
-const commands = new Collection<
-    string,
-    {
-        execute: (
-            interaction: ChatInputCommandInteraction
-        ) => Promise<void>;
-    }
->();
+// Load and register commands
+const commands = await loadCommands();
 
-commands.set(ping.data.name, ping);
 
+
+// EVENT HANDLERS
+
+// When client connects
 client.once(Events.ClientReady, (client) => {
     console.log(`Logged in as ${client.user.tag}.`);
 });
 
+// When interaction is created
 client.on(Events.InteractionCreate, async (interaction) => {
+    // Check if input command
     if (!interaction.isChatInputCommand()) {
         return;
     }
 
+    // Get command
     const command = commands.get(interaction.commandName);
 
     if (!command) {
@@ -46,6 +52,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         return;
     }
 
+    // Run command
     try {
         await command.execute(interaction);
     } catch (error) {
@@ -59,4 +66,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
+
+
+// Client login
 client.login(token);
