@@ -6,10 +6,10 @@ import {
 
 import {
     joinVoiceChannel,
-    createAudioPlayer,
 } from "@discordjs/voice";
 
 import { GuildStateManager } from "../state/guild-state-manager.js";
+import { MusicPlayer } from "../audio/music-player.js";
 
 
 
@@ -57,12 +57,12 @@ export async function execute(
     });
 
     // Create audio player
-    const audioPlayer = createAudioPlayer();
-    connection.subscribe(audioPlayer);
+    const musicPlayer = new MusicPlayer();
+    connection.subscribe(musicPlayer.player);
 
     // Store state
     state.voiceConnection = connection;
-    state.audioPlayer = audioPlayer;
+    state.musicPlayer = musicPlayer;
 
     await interaction.reply(`Mustache Bot joined **${voiceChannel.name}**!`);
 }

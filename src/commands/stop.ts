@@ -29,13 +29,13 @@ export async function execute(
     // Get state
     const state = guildStateManager.get(guildId);
 
-    if (!state.audioPlayer) {
-        await interaction.reply("No audio player available.");
+    if (!state.musicPlayer) {
+        await interaction.reply("No music player available.");
         return;
     }
 
     // Stop the audio
-    state.audioPlayer.stop();
+    state.musicPlayer.stop();
 
     await interaction.reply("Stopped playback.");
 }

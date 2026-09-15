@@ -15,7 +15,7 @@ export class GuildStateManager {
         if (!state) {
             state = {
                 voiceConnection: null,
-                audioPlayer: null,
+                musicPlayer: null,
             };
 
             this.states.set(guildId, state);

@@ -4,9 +4,8 @@ import {
     SlashCommandBuilder,
 } from "discord.js";
 
-import { createLocalAudioResource } from "../audio/audio-service.js";
-
 import { GuildStateManager } from "../state/guild-state-manager.js";
+import { Track } from "../audio/track.js";
 
 
 
@@ -37,7 +36,7 @@ export async function execute(
     // Get state
     const state = guildStateManager.get(guildId);
 
-    if (!state.voiceConnection || !state.audioPlayer) {
+    if (!state.voiceConnection || !state.musicPlayer) {
         await interaction.reply("I need to be in a voice channel first.");
         return;
     }
@@ -45,11 +44,13 @@ export async function execute(
     // Get file
     const file = interaction.options.getString("file", true);
 
-    // Create audio stream and resource
-    const resource = await createLocalAudioResource(file);
+    // Create track
+    const track: Track = {
+        filename: file,
+    };
 
     // Play audio
-    state.audioPlayer.play(resource);
+    await state.musicPlayer.playOrQueue(track);
 
-    await interaction.reply("Playing test audio.");
+    await interaction.reply(`Added **${file}** to the queue.`);
 }

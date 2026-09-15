@@ -29,13 +29,13 @@ export async function execute(
     // Get state
     const state = guildStateManager.get(guildId);
 
-    if (!state.voiceConnection) {
+    if (!state.voiceConnection || !state.musicPlayer) {
         await interaction.reply("I'm not currently in a voice channel.");
         return;
     }
 
     // Remove state
-    state.audioPlayer?.stop();
+    state.musicPlayer.stop();
     state.voiceConnection.destroy();
     guildStateManager.delete(guildId);
 
