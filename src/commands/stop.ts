@@ -10,8 +10,8 @@ import { GuildStateManager } from "../state/guild-state-manager.js";
 
 // Data
 export const data = new SlashCommandBuilder()
-    .setName("leave")
-    .setDescription("Leaves the current voice channel.")
+    .setName("stop")
+    .setDescription("Stops the currently playing audio.");
 
 // execute()
 export async function execute(
@@ -29,15 +29,13 @@ export async function execute(
     // Get state
     const state = guildStateManager.get(guildId);
 
-    if (!state.voiceConnection) {
-        await interaction.reply("I'm not currently in a voice channel.");
+    if (!state.audioPlayer) {
+        await interaction.reply("No audio player available.");
         return;
     }
 
-    // Remove state
-    state.audioPlayer?.stop();
-    state.voiceConnection.destroy();
-    guildStateManager.delete(guildId);
+    // Stop the audio
+    state.audioPlayer.stop();
 
-    await interaction.reply("Mustache Bot has disconnected.");
+    await interaction.reply("Stopped playback.");
 }

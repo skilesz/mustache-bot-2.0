@@ -43,7 +43,7 @@ export async function execute(
     const state = guildStateManager.get(voiceChannel.guild.id);
 
     if (state.voiceConnection) {
-        await interaction.reply("Silly, I'm already here!");
+        await interaction.reply("Mustache Bot is already in a voice channel!");
         return;
     }
 
