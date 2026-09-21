@@ -23,6 +23,11 @@ export class Queue<T> {
         return this.items.length;
     }
 
+    // toArray()
+    toArray(): T[] {
+        return [...this.items];
+    }
+
     // clear()
     clear(): void {
         this.items = [];

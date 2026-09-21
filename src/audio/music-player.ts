@@ -16,6 +16,8 @@ export class MusicPlayer {
     // Private vars
     private readonly audioPlayer: AudioPlayer;
     private readonly queue: Queue<Track>;
+    private playbackGeneration = 0;
+    private isTransitioning = false;
 
     // Constructor
     constructor() {
@@ -23,9 +25,13 @@ export class MusicPlayer {
         this.queue = new Queue<Track>;
 
         this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
-            console.log("Music player is idle.");
+            void this.playNext().catch((error) => {
+                console.error("Failed to play next track:", error);
+            });
+        });
 
-            void this.playNext();
+        this.audioPlayer.on("error", (error) => {
+            console.error("Audio player error:", error);
         });
     }
 
@@ -39,37 +45,82 @@ export class MusicPlayer {
         return this.queue.size;
     }
 
-    // play()
-    async play(track: Track): Promise<void> {
-        const resource = await createLocalAudioResource(track.filename);
-
-        this.audioPlayer.play(resource);
+    // Get queued tracks
+    get queuedTracks(): Track[] {
+        return this.queue.toArray();
     }
 
     // playNext()
     private async playNext(): Promise<void> {
-        const nextTrack = this.queue.dequeue();
-
-        if (!nextTrack) {
-            console.log("Queue is empty.");
+        if (this.isTransitioning) {
             return;
         }
 
-        console.log(`Playing next track: ${nextTrack.filename}`);
+        this.isTransitioning = true;
 
-        await this.play(nextTrack);
+        try {
+            const generation = this.playbackGeneration;
+
+            while (generation === this.playbackGeneration) {
+                const nextTrack = this.queue.peek();
+
+                if (!nextTrack) {
+                    console.log("Queue is empty.");
+                    return;
+                }
+
+                console.log(`Playing next track: ${nextTrack.filename}`);
+
+                try {
+                    const resource = await createLocalAudioResource(nextTrack.filename);
+
+                    if (generation !== this.playbackGeneration) {
+                        console.log("Playback operation is no longer current.");
+                        return;
+                    }
+
+                    this.queue.dequeue();
+                    this.audioPlayer.play(resource);
+
+                    return;
+                } catch (error) {
+                    if (generation !== this.playbackGeneration) {
+                        console.log("Playback operation is no longer current.");
+                        return;
+                    }
+
+                    console.error(`Failed to load track ${nextTrack.filename}:`, error);
+
+                    this.queue.dequeue();
+
+                    console.log(`Skipping unavailable track: ${nextTrack.filename}`);
+                }
+            }
+        } finally {
+            this.isTransitioning = false;
+        }
     }
 
     // playOrQueue()
     async playOrQueue(track: Track): Promise<void> {
-        if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
-            await this.play(track);
-            return;
-        }
-
         this.enqueue(track);
 
         console.log(`Queued track: ${track.filename}`);
+
+        if (this.audioPlayer.state.status === AudioPlayerStatus.Idle &&
+            !this.isTransitioning
+        ) {
+            await this.playNext();
+        }
+    }
+
+    // skip()
+    skip(): void {
+        if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
+            return;
+        }
+
+        this.audioPlayer.stop();
     }
 
     // enqueue()
@@ -84,6 +135,8 @@ export class MusicPlayer {
 
     // stop()
     stop(): void {
+        this.playbackGeneration++;
+
         this.queue.clear();
         this.audioPlayer.stop();
     }

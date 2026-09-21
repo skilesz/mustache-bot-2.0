@@ -49,8 +49,12 @@ export async function execute(
         filename: file,
     };
 
-    // Play audio
-    await state.musicPlayer.playOrQueue(track);
+    await interaction.reply(`Queued **${file}**`);
 
-    await interaction.reply(`Added **${file}** to the queue.`);
+    // Play audio
+    void state.musicPlayer.playOrQueue(track).catch((error) => {
+        console.error("Failed to start playback:", error);
+    });
+
+    
 }
