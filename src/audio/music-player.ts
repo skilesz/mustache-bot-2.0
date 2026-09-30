@@ -2,6 +2,7 @@
 import {
     AudioPlayer,
     AudioPlayerStatus,
+    AudioResource,
     createAudioPlayer,
 } from "@discordjs/voice";
 
@@ -11,18 +12,29 @@ import { createLocalAudioResource } from "./audio-service.js";
 
 
 
+// TYPES
+type AudioResourceLoader = (
+    filename: string
+) => Promise<AudioResource>;
+
+
+
 // MusicPlayer class
 export class MusicPlayer {
     // Private vars
     private readonly audioPlayer: AudioPlayer;
     private readonly queue: Queue<Track>;
+    private readonly loadAudioResource: AudioResourceLoader;
     private playbackGeneration = 0;
     private isTransitioning = false;
 
     // Constructor
-    constructor() {
+    constructor(
+        loadAudioResource: AudioResourceLoader = createLocalAudioResource
+    ) {
         this.audioPlayer = createAudioPlayer();
         this.queue = new Queue<Track>;
+        this.loadAudioResource = loadAudioResource;
 
         this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
             void this.playNext().catch((error) => {
@@ -72,7 +84,7 @@ export class MusicPlayer {
                 console.log(`Playing next track: ${nextTrack.filename}`);
 
                 try {
-                    const resource = await createLocalAudioResource(nextTrack.filename);
+                    const resource = await this.loadAudioResource(nextTrack.filename);
 
                     if (generation !== this.playbackGeneration) {
                         console.log("Playback operation is no longer current.");
