@@ -2,20 +2,11 @@
 import {
     AudioPlayer,
     AudioPlayerStatus,
-    AudioResource,
     createAudioPlayer,
 } from "@discordjs/voice";
 
 import { Queue } from "./queue.js";
 import { Track } from "./track.js";
-import { createLocalAudioResource } from "./audio-service.js";
-
-
-
-// TYPES
-type AudioResourceLoader = (
-    filename: string
-) => Promise<AudioResource>;
 
 
 
@@ -24,17 +15,13 @@ export class MusicPlayer {
     // Private vars
     private readonly audioPlayer: AudioPlayer;
     private readonly queue: Queue<Track>;
-    private readonly loadAudioResource: AudioResourceLoader;
     private playbackGeneration = 0;
     private isTransitioning = false;
 
     // Constructor
-    constructor(
-        loadAudioResource: AudioResourceLoader = createLocalAudioResource
-    ) {
+    constructor() {
         this.audioPlayer = createAudioPlayer();
         this.queue = new Queue<Track>;
-        this.loadAudioResource = loadAudioResource;
 
         this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
             void this.playNext().catch((error) => {
@@ -81,10 +68,10 @@ export class MusicPlayer {
                     return;
                 }
 
-                console.log(`Playing next track: ${nextTrack.filename}`);
+                console.log(`Playing next track: ${nextTrack.title}`);
 
                 try {
-                    const resource = await this.loadAudioResource(nextTrack.filename);
+                    const resource = await nextTrack.source.createResource(nextTrack);
 
                     if (generation !== this.playbackGeneration) {
                         console.log("Playback operation is no longer current.");
@@ -101,11 +88,11 @@ export class MusicPlayer {
                         return;
                     }
 
-                    console.error(`Failed to load track ${nextTrack.filename}:`, error);
+                    console.error(`Failed to load track ${nextTrack.title}:`, error);
 
                     this.queue.dequeue();
 
-                    console.log(`Skipping unavailable track: ${nextTrack.filename}`);
+                    console.log(`Skipping unavailable track: ${nextTrack.title}`);
                 }
             }
         } finally {
@@ -117,7 +104,7 @@ export class MusicPlayer {
     async playOrQueue(track: Track): Promise<void> {
         this.enqueue(track);
 
-        console.log(`Queued track: ${track.filename}`);
+        console.log(`Queued track: ${track.title}`);
 
         if (this.audioPlayer.state.status === AudioPlayerStatus.Idle &&
             !this.isTransitioning

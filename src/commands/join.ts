@@ -10,6 +10,7 @@ import {
 
 import { GuildStateManager } from "../state/guild-state-manager.js";
 import { MusicPlayer } from "../audio/music-player.js";
+import { YouTubeAudioSource } from "../audio/youtube-audio-source.js";
 
 
 

@@ -1,4 +1,12 @@
+// IMPORTS
+import { AudioSource } from "./audio-source.js";
+
+
+
 // Track interface
 export interface Track {
-    filename: string;
+    title: string,
+    source: AudioSource;
+    filename?: string;
+    url?: string;
 }

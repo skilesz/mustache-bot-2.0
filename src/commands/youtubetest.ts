@@ -1,23 +1,20 @@
 // IMPORTS
-import {
-    ChatInputCommandInteraction,
-    SlashCommandBuilder,
-} from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
 import { GuildStateManager } from "../state/guild-state-manager.js";
 import { Track } from "../audio/track.js";
-import { LocalAudioSource } from "../audio/local-audio-source.js";
+import { YouTubeAudioSource } from "../audio/youtube-audio-source.js";
 
 
 
 // Data
 export const data = new SlashCommandBuilder()
-    .setName("playtest")
-    .setDescription("Play a local audio file.")
+    .setName("youtubetest")
+    .setDescription("Play audio from a YouTube URL.")
     .addStringOption((option) => 
         option
-            .setName("file")
-            .setDescription("The audio file to play.")
+            .setName("url")
+            .setDescription("YouTube URL")
             .setRequired(true)
     );
 
@@ -43,16 +40,15 @@ export async function execute(
     }
 
     // Get file
-    const file = interaction.options.getString("file", true);
+    const url = interaction.options.getString("url", true);
 
     // Create track
-    const track: Track = {
-        title: file,
-        filename: file,
-        source: new LocalAudioSource(),
-    };
+    const source = new YouTubeAudioSource();
+    const track = await source.resolve(url);
 
-    await interaction.reply(`Queued **${file}**`);
+    console.log("Resolved track:", track);
+
+    await interaction.reply(`Queued **${track.title}**`);
 
     // Play audio
     void state.musicPlayer.playOrQueue(track).catch((error) => {
