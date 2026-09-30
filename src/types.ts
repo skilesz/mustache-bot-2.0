@@ -6,6 +6,8 @@ import {
 
 import { GuildStateManager } from "./state/guild-state-manager.js";
 
+import { TrackResolver } from "./audio/track-resolver.js";
+
 
 
 // Command interface
@@ -13,6 +15,7 @@ export interface Command {
     data: SlashCommandBuilder;
     execute: (
         Interaction: ChatInputCommandInteraction,
-        guildStateManager: GuildStateManager
+        guildStateManager: GuildStateManager,
+        trackResolver: TrackResolver
     ) => Promise<void>;
 }

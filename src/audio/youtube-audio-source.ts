@@ -16,6 +16,24 @@ interface YouTubeMetadata {
 export class YouTubeAudioSource implements AudioSource {
     // resolve()
     async resolve(input: string): Promise<Track> {
+        let url: URL;
+
+        try {
+            url = new URL(input);
+        } catch {
+            throw new Error("Input is not a valid URL.");
+        }
+
+        const isYouTube =
+            url.hostname === "youtube.com" ||
+            url.hostname === "www.youtube.com" ||
+            url.hostname === "youtu.be" ||
+            url.hostname === "www.youtu.be";
+
+        if (!isYouTube) {
+            throw new Error("Input is not a YouTube url.");
+        }
+
         const metadata = await youtubeDl(input, {
             dumpSingleJson: true,
             skipDownload: true,

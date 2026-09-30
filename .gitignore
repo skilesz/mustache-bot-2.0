@@ -1,5 +1,6 @@
 node_modules/
 dist/
+archive/
 .env
 *.mp3
 queue-test.ts

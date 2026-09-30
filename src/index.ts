@@ -11,6 +11,10 @@ import { loadCommands } from "./command-loader.js";
 
 import { GuildStateManager } from "./state/guild-state-manager.js";
 
+import { TrackResolver } from "./audio/track-resolver.js";
+import { LocalAudioSource } from "./audio/local-audio-source.js";
+import { YouTubeAudioSource } from "./audio/youtube-audio-source.js";
+
 
 
 // SETUP
@@ -32,6 +36,12 @@ const commands = await loadCommands();
 
 // Create state manager
 const guildStateManager = new GuildStateManager();
+
+// Create track resolver
+const trackResolver = new TrackResolver([
+    new LocalAudioSource(),
+    new YouTubeAudioSource(),
+]);
 
 
 
@@ -59,7 +69,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     // Run command
     try {
-        await command.execute(interaction, guildStateManager);
+        await command.execute(interaction, guildStateManager, trackResolver);
     } catch (error) {
         console.error(`Error executing /${interaction.commandName}:`, error);
 

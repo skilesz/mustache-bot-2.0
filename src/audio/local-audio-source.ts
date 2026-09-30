@@ -11,6 +11,10 @@ import { Track } from "./track.js";
 export class LocalAudioSource implements AudioSource {
     // resolve()
     async resolve(input: string): Promise<Track> {
+        if (input.startsWith("http://") || input.startsWith("https://")) {
+            throw new Error("Input is a URL.");
+        }
+
         return {
             title: input,
             filename: input,
